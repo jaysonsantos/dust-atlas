@@ -31,8 +31,12 @@
               { name = "vglyph"; path = vglyphPatched; }
               { name = "json2"; path = "${pkgs.vlang}/lib/vlib/x/json2"; }
             ];
+            # macOS frameworks exceed the default Boehm static-root limit, so
+            # plain `v run .` needs the same GC flags as scripts/build.vsh.
+            gcFlags = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
+              " -d use_bundled_libgc -cflags -DLARGE_CONFIG";
         in { default = pkgs.mkShell {
-          VFLAGS = "-path ${modules}|@vlib|@vmodules";
+          VFLAGS = "-path ${modules}|@vlib|@vmodules${gcFlags}";
           packages = [ pkgs.python3 pkgs.vlang pkgs.dust pkgs.pkg-config pkgs.pango pkgs.harfbuzz pkgs.fribidi pkgs.fontconfig pkgs.freetype pkgs.libsysprof-capture pkgs.pcre2 pkgs.libthai pkgs.libdatrie pkgs.libxdmcp ]
             ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.dbus pkgs.libGL pkgs.libx11 pkgs.libxi pkgs.libxcursor pkgs.libxrandr pkgs.util-linux pkgs.systemdLibs pkgs.libselinux pkgs.libsepol ];
         }; });
