@@ -1,0 +1,54 @@
+--- a/window_event.v
++++ b/window_event.v
+@@ -41,6 +41,12 @@
+ 				return
+ 			}
+ 		}
++	}
++
++	// Input handlers capture the text from the last layout. Refresh before the
++	// next keyboard event so events within one frame cannot overwrite each other.
++	if w.refresh_layout && e.typ in [.char, .key_down] {
++		w.update()
+ 	}
+ 
+ 	// Top-level layout children represent z-axis layers:
+--- a/a11y_tree.v
++++ b/a11y_tree.v
+@@ -129,7 +129,7 @@
+ 		nodes << C.GuiA11yNode{
+ 			parent_idx:    parent_idx
+ 			role:          int(shape.a11y_role)
+-			state:         int(shape.a11y_state)
++			state:         int(shape.a11y_state) | if shape.disabled { 512 } else { 0 }
+ 			x:             shape.x
+ 			y:             shape.y
+ 			w:             shape.width
+--- a/nativebridge/a11y_macos.m
++++ b/nativebridge/a11y_macos.m
+@@ -177,6 +177,11 @@
+     return self.isFocused;
+ }
+ 
++// Report the control's enabled state to macOS accessibility clients.
++- (BOOL)isAccessibilityEnabled {
++    return (self.guiState & 512) == 0;
++}
++
+ // State queries from guiState bitmask
+ - (BOOL)isAccessibilityExpanded {
+     return (self.guiState & A11Y_STATE_EXPANDED) != 0;
+--- a/ime.v
++++ b/ime.v
+@@ -100,6 +100,11 @@
+ 		return
+ 	}
+ 	mut w := unsafe { &Window(data) }
++	// macOS commits text directly through IME, without a gg char event.
++	// Rebuild stale input callbacks before each commit in the same frame.
++	if w.refresh_layout {
++		w.update()
++	}
+ 	id_focus := w.view_state.id_focus
+ 	if id_focus == 0 {
+ 		return

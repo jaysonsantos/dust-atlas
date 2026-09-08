@@ -1,0 +1,78 @@
+{
+  "nodes": {
+    "gui": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784563265,
+        "narHash": "sha256-+av4voTx0a/an5IjzGUqWL9LJT1KdIf8uE2dYmKT2V4=",
+        "owner": "vlang",
+        "repo": "gui",
+        "rev": "e699bcf83b33822371af097984eba0a3ba3524e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vlang",
+        "repo": "gui",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1788834054,
+        "narHash": "sha256-9dzTcXMtlknZyT47Vv1PnpGgN7UYA8WxxqyxsKdvYbo=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e9b9cbecbf6c25ca26c150d78570e6332694a129",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-intel-mac": {
+      "locked": {
+        "lastModified": 1788807765,
+        "narHash": "sha256-J9oC0bKnkXUrMegqRTXVkyDFJ0gn2U/Qpoo9HgGMQmA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "93108a538f079596c9a16c72cf03e9322782b6dd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-26.05-darwin",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "gui": "gui",
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-intel-mac": "nixpkgs-intel-mac",
+        "vglyph": "vglyph"
+      }
+    },
+    "vglyph": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783443923,
+        "narHash": "sha256-7YPHnN/8eX0cKdz1EUPEgD6QnrccMOvRVU9E28Sj3tI=",
+        "owner": "vlang",
+        "repo": "vglyph",
+        "rev": "72377fbe720dbd658ee96c59b49904ba30ebe059",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vlang",
+        "repo": "vglyph",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

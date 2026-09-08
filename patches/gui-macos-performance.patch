@@ -1,0 +1,5 @@
+--- a/view_text_xtra.v
++++ b/view_text_xtra.v
+@@ -301,1 +301,1 @@
+-		layout := window.text_system.layout_text(shape.tc.text, cfg) or { vglyph.Layout{} }
++		layout := window.text_system.layout_text_cached(shape.tc.text, cfg) or { vglyph.Layout{} }

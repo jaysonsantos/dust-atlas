@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Dust Atlas
+Comment=Explore disk space
+Exec=dust-atlas
+Icon=dust-atlas
+Categories=System;FileTools;
+Terminal=false

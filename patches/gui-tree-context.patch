@@ -1,0 +1,95 @@
+--- a/view_tree.v
++++ b/view_tree.v
+@@ -17,6 +17,7 @@
+ 	A11yCfg
+ pub:
+ 	id           string @[required]
++	on_context_menu fn (string, mut Window) = unsafe { nil }
+ 	on_select    fn (string, mut Window)         = unsafe { nil }
+ 	on_lazy_load fn (string, string, mut Window) = unsafe { nil }
+ 	nodes        []TreeNodeCfg
+@@ -119,6 +120,7 @@
+ 
+ 	indent := cfg.indent
+ 	on_select := cfg.on_select
++	on_context_menu := cfg.on_context_menu
+ 	on_lazy_load := cfg.on_lazy_load
+ 	text_style_icon := tree_icon_style(cfg.nodes)
+ 	min_width_icon := text_width('${icon_bar} ', text_style_icon, mut window)
+@@ -136,6 +138,9 @@
+ 	if virtualize && first_visible > 0 {
+ 		content << rectangle(
+ 			name:   'tree spacer top'
++            size_border: 0
++            radius: 0
++            color_border: color_transparent
+ 			color:  color_transparent
+ 			height: f32(first_visible) * row_height
+ 			sizing: fill_fixed
+@@ -194,7 +199,7 @@
+ 				sibling_index: sibling_idx
+ 				sibling_ids:   sibling_ids_by_parent[pid]
+ 			}
+-			content << tree_flat_row_view(cfg_id, on_select, on_lazy_load, fr, indent,
++			content << tree_flat_row_view(cfg_id, on_select, on_context_menu, on_lazy_load, fr, indent,
+ 				min_width_icon, is_draggable, drag_ctx)
+ 		}
+ 	}
+@@ -207,6 +212,9 @@
+ 		remaining := flat_rows.len - 1 - last_visible
+ 		content << rectangle(
+ 			name:   'tree spacer bottom'
++            size_border: 0
++            radius: 0
++            color_border: color_transparent
+ 			color:  color_transparent
+ 			height: f32(remaining) * row_height
+ 			sizing: fill_fixed
+@@ -313,7 +321,8 @@
+ 		gui_theme.tree_style.text_style
+ 	}
+ 	text_h := tree_font_height(ts, mut window)
+-	return text_h + cfg.spacing
++	// The row text container has one pixel of padding on each vertical side.
++	return text_h + 2 + cfg.spacing
+ }
+ 
+ fn tree_font_height(style TextStyle, mut window Window) f32 {
+@@ -393,7 +402,7 @@
+ }
+ 
+ // tree_flat_row_view produces a single View for one flat row.
+-fn tree_flat_row_view(cfg_id string, on_select fn (string, mut Window), on_lazy_load fn (string, string, mut Window), flat_row TreeFlatRow, indent f32, min_width_icon f32, reorderable bool, drag_ctx TreeDragContext) View {
++fn tree_flat_row_view(cfg_id string, on_select fn (string, mut Window), on_context_menu fn (string, mut Window), on_lazy_load fn (string, string, mut Window), flat_row TreeFlatRow, indent f32, min_width_icon f32, reorderable bool, drag_ctx TreeDragContext) View {
+ 	if flat_row.is_loading {
+ 		return row(
+ 			name:    'tree loading'
+@@ -418,8 +427,8 @@
+ 	is_lazy := flat_row.is_lazy
+ 	node_text := flat_row.text
+ 	node_icon := flat_row.icon
+-	node_text_style := flat_row.text_style
+-	node_text_style_icon := flat_row.text_style_icon
++	node_text_style := gui_theme.tree_style.text_style
++	node_text_style_icon := gui_theme.tree_style.text_style_icon
+ 	node_has_real_children := flat_row.has_real_children
+ 
+ 	arrow := tree_arrow_icon(flat_row)
+@@ -470,7 +479,16 @@
+ 				]
+ 			),
+ 		]
+-		on_click:   on_click_fn
++		on_any_click: fn [id, on_click_fn, on_context_menu] (l &Layout, mut e Event, mut w Window) {
++            if e.mouse_button == .right || (e.mouse_button == .left && e.modifiers == .ctrl) {
++                if on_context_menu != unsafe { nil } {
++                    on_context_menu(id, mut w)
++                    e.is_handled = true
++                }
++            } else if e.mouse_button == .left {
++                on_click_fn(l, mut e, mut w)
++            }
++        }
+ 		on_hover:   fn (mut layout Layout, mut e Event, mut w Window) {
+ 			w.set_mouse_cursor_pointing_hand()
+ 			for mut child in layout.children {

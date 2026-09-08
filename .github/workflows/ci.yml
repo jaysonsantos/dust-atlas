@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: vlang/setup-v@663cc08827d1fc0532ee755b4dedbb183c11d06a # v1.7
+        with:
+          version: '0.5.2'
+      - name: Check V format and source whitespace
+        run: python3 scripts/ci/check.py
+      - name: Check shell scripts
+        run: shellcheck scripts/ci/*.sh scripts/bundle-macos.sh
+      - name: Check workflow syntax
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.11
+          "$(go env GOPATH)/bin/actionlint"
+
+  build:
+    needs: lint
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x64
+            runner: ubuntu-22.04
+          - platform: windows-x64
+            runner: windows-2022
+          - platform: macos-arm64
+            runner: macos-15
+          - platform: macos-x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install Linux libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpango1.0-dev libfontconfig1-dev libfribidi-dev \
+            libharfbuzz-dev libfreetype-dev libgl1-mesa-dev libxcursor-dev libxi-dev \
+            libxrandr-dev libdbus-1-dev libdbus-glib-1-dev xvfb desktop-file-utils
+      - name: Install macOS libraries
+        if: runner.os == 'macOS'
+        run: brew install pango harfbuzz freetype pkg-config dylibbundler
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+        if: runner.os == 'Windows'
+      - name: Install Windows libraries
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/windows-deps.ps1
+      - uses: vlang/setup-v@663cc08827d1fc0532ee755b4dedbb183c11d06a # v1.7
+        id: v
+        with:
+          version: '0.5.2'
+      - name: Prepare locked GUI modules
+        env:
+          VROOT: ${{ steps.v.outputs.bin-path }}
+        run: python scripts/ci/prepare.py
+      - name: Build bundled dust
+        run: cargo install du-dust --version 1.2.5 --locked --root .ci/dust
+      - name: Collect dependency notices
+        run: python scripts/ci/notices.py
+      - name: Run tests
+        run: python scripts/ci/test.py
+      - name: Build app
+        run: v run scripts/build.vsh
+      - name: Package Linux AppImage
+        if: runner.os == 'Linux'
+        run: sh scripts/ci/package-linux.sh
+      - name: Package macOS app
+        if: runner.os == 'macOS'
+        run: sh scripts/ci/package-macos.sh
+      - name: Package Windows ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/ci/package-windows.ps1
+      - name: Upload package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Dust-Atlas-${{ matrix.platform }}
+          path: |
+            dist/*.AppImage
+            dist/*.zip
+          if-no-files-found: error
+          retention-days: 14

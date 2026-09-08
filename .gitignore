@@ -1,0 +1,15 @@
+/bin/
+*.exe
+.DS_Store
+/.direnv/
+
+/scripts/build
+
+/.ci/
+/dist/
+__pycache__/
+
+/Dust Atlas.app/
+/dust-atlas
+/dust-atlas-*
+/ui-fixture/

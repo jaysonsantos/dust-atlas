@@ -1,0 +1,4 @@
+# Unified patches require a space before unchanged context lines.
+*.patch text eol=lf whitespace=-blank-at-eol,-space-before-tab
+
+*.sh text eol=lf

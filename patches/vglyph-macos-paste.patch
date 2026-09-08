@@ -1,0 +1,20 @@
+--- a/ime_overlay_darwin.m
++++ b/ime_overlay_darwin.m
+@@ -212,7 +212,17 @@
+ 
+ #pragma mark - Key Forwarding (Phase 20: Korean IME support)
+ 
++- (void)paste:(id)sender {
++    NSString *text = [[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString];
++    if (text) [self insertText:text replacementRange:NSMakeRange(NSNotFound, 0)];
++}
++
+ - (void)keyDown:(NSEvent*)event {
++    if ((event.modifierFlags & NSEventModifierFlagCommand) &&
++        [event.charactersIgnoringModifiers.lowercaseString isEqualToString:@"v"]) {
++        [self paste:nil];
++        return;
++    }
+     NSTextInputContext* ctx = [self inputContext];
+     if (ctx) {
+         [ctx activate];
