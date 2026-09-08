@@ -4,10 +4,13 @@
 
 Dust Atlas is a V frontend for dust. The app supports macOS, Linux, and Windows. File actions remain macOS-only; other platforms report that limit.
 
-- `main.v`: GUI controls, folder tree, navigation, and worker coordination.
-- `model.v`: dust arguments, JSON data, byte totals, and treemap layout.
-- `file_actions_darwin.c.v` and `native/actions.{h,m}`: macOS menus, Trash, and permanent deletion.
-- `*_test.v`: model, tree, and file-action tests beside the source.
+The V sources use one module for each area. `v.mod` marks the module lookup root, so each module imports its siblings by name.
+
+- `main.v`: `module main`. It reads the folder argument and starts the interface.
+- `atlas/`: `module atlas`. GUI controls, folder tree, navigation, worker coordination, and the Linux dbus build flag.
+- `model/`: `module model`. Dust arguments, JSON data, byte totals, and treemap layout.
+- `actions/` with `native/actions.{h,m}`: `module actions`. macOS menus, Trash, and permanent deletion.
+- `*_test.v`: internal tests beside the module source.
 - `scripts/`: build helper, local macOS bundle script, and `Info.plist`.
 - `scripts/ci/` and `.github/workflows/ci.yml`: lint checks, tests, and release packages for each platform.
 - `patches/`: local changes to pinned GUI dependencies.
@@ -22,14 +25,16 @@ Install Nix with flakes enabled. On macOS, also install the Xcode command line t
 - Run `./bin/dust-atlas /path/to/folder` to open the app.
 - Run `sh scripts/bundle-macos.sh` on macOS to create a local `bin/Dust Atlas.app`. This bundle links development libraries and excludes dust. Use `scripts/ci/package-*` for release packages.
 - Run `python3 scripts/ci/test.py` to execute the project tests. Do not run `v test .`, because it also collects dependency tests.
-- Run `v fmt -w *.v scripts/build.vsh` to format V source.
-- Run `v fmt -verify *.v scripts/build.vsh` and `git diff --check` before review.
+- Run `v fmt -w main.v atlas/*.v model/*.v actions/*.v scripts/build.vsh` to format V source.
+- Run `python3 scripts/ci/check.py` before review. It verifies the format of all repository sources and the whitespace of the diff.
 
 Keep generated `bin/` and `.direnv/` files out of commits.
 
 ## Coding and Architecture
 
 Use tabs and let `v fmt` control V formatting. Use `snake_case` for functions and variables; use `PascalCase` for types.
+
+Keep each module small and give it one responsibility. Export only the items that other modules use. Do not name a module `ui`: `v fmt` removes the `gui.` qualifier from types in a module with that name.
 
 Keep scans, JSON parsing, tree preparation, and file operations on workers. Apply results through `gui.Window.queue_command`. Open native menus after click handlers return. Preserve text-layout caching and Metal frame scheduling.
 

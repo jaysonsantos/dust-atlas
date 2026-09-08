@@ -1,4 +1,4 @@
-module main
+module model
 
 import math
 import os

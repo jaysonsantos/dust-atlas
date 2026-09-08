@@ -3,7 +3,9 @@
 from pathlib import Path
 import subprocess
 
-files = sorted(str(p) for p in Path('.').glob('*.v')) + ['scripts/build.vsh']
+import sources
+
+files = [str(p) for p in sources.sources()] + ['scripts/build.vsh']
 subprocess.run(['v', 'fmt', '-verify', *files], check=True)
 subprocess.run(['git', 'diff', '--check'], check=True)
 for path in Path('scripts').rglob('*.py'):

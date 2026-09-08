@@ -1,36 +1,38 @@
-module main
+module model
 
 import json
 import os
 
-struct Node {
+pub struct Node {
+pub:
 	name     string
 	size     string
 	children []Node
 }
 
-struct ScanResult {
+pub struct ScanResult {
+pub:
 	root    Node
 	error   string
 	warning string
 }
 
-fn bytes(n Node) u64 {
+pub fn bytes(n Node) u64 {
 	return n.size.trim_string_right('B').u64()
 }
 
-fn scan(path string, results chan ScanResult) {
+pub fn scan(path string, results chan ScanResult) {
 	scan_with_options(path, true, results)
 }
 
-fn dust_args(path string, limit_filesystem bool) []string {
+pub fn dust_args(path string, limit_filesystem bool) []string {
 	mut args := ['-j', '-P', '-p', '-o', 'b', '-n', '20000', '-d', '12']
 	if limit_filesystem { args << '--limit-filesystem' }
 	args << ['--', path]
 	return args
 }
 
-fn dust_executable(directory string) !string {
+pub fn dust_executable(directory string) !string {
 	mut name := 'dust'
 	$if windows { name += '.exe' }
 	bundled := os.join_path(directory, name)
@@ -38,7 +40,7 @@ fn dust_executable(directory string) !string {
 	return os.find_abs_path_of_executable(name)
 }
 
-fn scan_with_options(path string, limit_filesystem bool, results chan ScanResult) {
+pub fn scan_with_options(path string, limit_filesystem bool, results chan ScanResult) {
 	executable := dust_executable(os.dir(os.executable())) or {
 		results <- ScanResult{
 			error: 'Cannot find dust. Install dust and add it to PATH.'
@@ -73,7 +75,8 @@ fn scan_with_options(path string, limit_filesystem bool, results chan ScanResult
 	}
 }
 
-struct Tile {
+pub struct Tile {
+pub:
 	node Node
 	x    f32
 	y    f32
@@ -110,7 +113,7 @@ fn partition(nodes []Node, x f32, y f32, w f32, h f32) []Tile {
 	return tiles
 }
 
-fn layout(root Node, x f32, y f32, w f32, h f32) []Tile {
+pub fn layout(root Node, x f32, y f32, w f32, h f32) []Tile {
 	mut nodes := root.children.filter(bytes(it) > 0)
 	mut total := u64(0)
 	for n in nodes {
@@ -126,7 +129,7 @@ fn layout(root Node, x f32, y f32, w f32, h f32) []Tile {
 	return partition(nodes, x, y, w, h)
 }
 
-fn human(size u64) string {
+pub fn human(size u64) string {
 	if size >= 1073741824 { return '${f64(size) / 1073741824:.1f} GiB' }
 	if size >= 1048576 { return '${f64(size) / 1048576:.1f} MiB' }
 	if size >= 1024 { return '${f64(size) / 1024:.1f} KiB' }
@@ -137,7 +140,7 @@ fn read_errors(mut p os.Process) string {
 	return p.stderr_slurp()
 }
 
-fn compare_nodes(a &Node, b &Node) int {
+pub fn compare_nodes(a &Node, b &Node) int {
 	if bytes(a) > bytes(b) { return -1 }
 	if bytes(a) < bytes(b) { return 1 }
 	return compare_strings(a.name, b.name)
