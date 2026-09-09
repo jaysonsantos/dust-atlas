@@ -26,7 +26,7 @@ jobs:
       - name: Install V
         run: python scripts/ci/install-v.py
       - name: Check V format and source whitespace
-        run: python scripts/ci/check.py
+        run: v run scripts/ci/check.vsh
       - name: Check shell scripts
         run: shellcheck scripts/ci/*.sh scripts/bundle-macos.sh
       - name: Check workflow syntax
@@ -83,7 +83,7 @@ jobs:
       - name: Collect dependency notices
         run: python scripts/ci/notices.py
       - name: Run tests
-        run: python scripts/ci/test.py
+        run: v run scripts/ci/test.vsh
       - name: Build app
         run: v run scripts/build.vsh
       - name: Package Linux AppImage

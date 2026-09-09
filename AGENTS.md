@@ -12,6 +12,7 @@ The V sources use one module for each area. `v.mod` marks the module lookup root
 - `actions/` with `native/actions.{h,m}`: `module actions`. macOS menus, Trash, and permanent deletion.
 - `*_test.v`: internal tests beside the module source.
 - `scripts/`: build helper, local macOS bundle script, and `Info.plist`.
+- `scripts/ci/sources/`: `module sources`. It lists the repository V files for the check and test scripts.
 - `scripts/ci/` and `.github/workflows/ci.yml`: lint checks, tests, and release packages for each platform.
 - `patches/`: local changes to pinned GUI dependencies.
 - `licenses/` and `THIRD_PARTY.md`: dependency notices. Keep interface artwork original.
@@ -24,15 +25,17 @@ Install Nix with flakes enabled. On macOS, also install the Xcode command line t
 - Run `v run scripts/build.vsh` to build `bin/dust-atlas` with production optimization and the platform build flags.
 - Run `./bin/dust-atlas /path/to/folder` to open the app.
 - Run `sh scripts/bundle-macos.sh` on macOS to create a local `bin/Dust Atlas.app`. This bundle links development libraries and excludes dust. Use `scripts/ci/package-*` for release packages.
-- Run `python3 scripts/ci/test.py` to execute the project tests. Do not run `v test .`, because it also collects dependency tests.
-- Run `v fmt -w main.v atlas/*.v model/*.v actions/*.v scripts/build.vsh` to format V source.
-- Run `python3 scripts/ci/check.py` before review. It verifies the format of all repository sources and the whitespace of the diff.
+- Run `v run scripts/ci/test.vsh` to execute the project tests. Do not run `v test .`, because it also collects dependency tests.
+- Run `v run scripts/ci/check.vsh -w` to format all repository V source.
+- Run `v run scripts/ci/check.vsh` before review. It verifies the format of all repository sources and the whitespace of the diff.
 
 Keep generated `bin/` and `.direnv/` files out of commits.
 
 ## Coding and Architecture
 
 Use tabs and let `v fmt` control V formatting. Use `snake_case` for functions and variables; use `PascalCase` for types.
+
+Write repository scripts in V, as `.vsh` files. Python remains only for `scripts/ci/install-v.py`, because it installs V, and for the packaging helpers that still use it.
 
 Keep each module small and give it one responsibility. Export only the items that other modules use. Do not name a module `ui`: `v fmt` removes the `gui.` qualifier from types in a module with that name.
 
