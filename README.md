@@ -178,6 +178,8 @@ The file-action tests check error reporting and preserve a symbolic link's targe
 
 `patches/gui-tree-selection.patch` adds `selected` and `reveal` to the tree, and a stable row id for `scroll_to_view`.
 A reveal runs only when `selected` changes, so a folder you collapse stays collapsed.
+The `selected` and `reveal` part is upstream at <https://github.com/vlang/gui/pull/80>.
+The row id stays local. Upstream sets that id for drag reorder only, and a virtual tree omits off-screen rows.
 
 Each rectangle carries cushion shading: two crossed passes of shaded bands.
 The band count follows the rectangle size, so the cost stays near-constant per rectangle.
