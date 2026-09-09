@@ -15,7 +15,7 @@ v run scripts/build.vsh
 ./bin/dust-atlas /path/to/folder
 ```
 
-Click **Browse** to choose and scan a folder. You can also enter a path and click **Scan**. The scan runs outside the interface thread.
+Click **Browse** to choose and scan a folder. You can also enter a path and click **Scan this folder**. The scan runs outside the interface thread. Click **Cancel scan** to stop it.
 The app first looks for dust beside its executable. It then checks `PATH`.
 The flake supplies V, dust, GUI modules, and text libraries.
 The lock file also fixes the `gui` and `vglyph` revisions.
@@ -64,19 +64,23 @@ On Linux and Windows, right-click reports that Trash and deletion require macOS.
 ## Controls
 
 - Click **Browse** to choose a folder with the macOS folder picker.
-- Click the path field to change the folder path.
+- Click the path field to change the folder path. The field always shows the open folder.
 - Use Command+A to select the path text.
 - Use Command+V to paste a path.
-- Press Enter or click **Scan** to scan the folder.
+- Press Enter or click **Scan this folder** to scan the path.
+- Click **Cancel scan** to stop a scan that runs too long.
 - Click a folder rectangle or a tree entry to see its contents.
+- The tree expands to the open folder and highlights it.
 - Expand folders in the tree. Scroll to reach small entries. The tree includes zero-byte entries.
 - If dust omitted a folder's contents, the app scans that folder when you open it.
+- Click a name in the path trail to return to that folder.
 - Click **Back** to return to the previous folder.
-- Click **Scan root** to return to the first folder.
-- Click **Scan folder** to scan the path again.
+- Click **Top folder** to return to the first folder.
 - Click **Dark appearance** or **Light appearance** to change the theme.
 - Use Tab to move between controls.
-- Move the pointer over a rectangle to see its full path and size.
+- Move the pointer over a rectangle to see its name and size beside the pointer.
+- With the map in focus, use the arrow keys to move between rectangles.
+- Press Enter to open the marked rectangle. Press Backspace to go back.
 
 ## Data limits
 
@@ -172,6 +176,12 @@ The app prepares tree data on the worker thread.
 Trash and permanent deletion use `NSFileManager` on a worker thread.
 The file-action tests check error reporting and preserve a symbolic link's target.
 
-The map uses one subtle gradient overlay. Gradient work does not grow with the number of rectangles.
+`patches/gui-tree-selection.patch` adds `selected` and `reveal` to the tree, and a stable row id for `scroll_to_view`.
+A reveal runs only when `selected` changes, so a folder you collapse stays collapsed.
+
+Each rectangle carries cushion shading: two crossed passes of shaded bands.
+The band count follows the rectangle size, so the cost stays near-constant per rectangle.
+Rectangle colour follows size rank, from warm for the largest entry to cool for the smallest.
+The map builds its rectangles at the real widget size, so rectangle shapes stay true when the window resizes.
 
 Native menus open after the click handler returns. This prevents modal dialogs from invalidating the active layout.

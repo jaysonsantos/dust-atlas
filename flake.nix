@@ -19,6 +19,7 @@
               patch -p1 < ${./patches/gui-macos-input.patch}
               patch -p1 < ${./patches/gui-macos-performance.patch}
               patch -p1 < ${./patches/gui-tree-context.patch}
+              patch -p1 < ${./patches/gui-tree-selection.patch}
             '';
             vglyphPatched = pkgs.runCommand "dust-atlas-vglyph" { nativeBuildInputs = [ pkgs.patch ]; } ''
               cp -R ${vglyph} $out

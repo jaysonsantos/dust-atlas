@@ -8,7 +8,7 @@ The V sources use one module for each area. `v.mod` marks the module lookup root
 
 - `main.v`: `module main`. It reads the folder argument and starts the interface.
 - `atlas/`: `module atlas`. GUI controls, folder tree, navigation, worker coordination, and the Linux dbus build flag.
-- `model/`: `module model`. Dust arguments, JSON data, byte totals, and treemap layout.
+- `model/`: `module model`. Dust arguments, JSON data, byte totals, scan cancellation, and treemap layout.
 - `actions/` with `native/actions.{h,m}`: `module actions`. macOS menus, Trash, and permanent deletion.
 - `*_test.v`: internal tests beside the module source.
 - `scripts/`: build helper, local macOS bundle script, and `Info.plist`.

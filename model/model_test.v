@@ -9,7 +9,7 @@ fn test_layout_preserves_area_and_remainder() {
 		size:     '100B'
 		children: [Node{ name: 'a', size: '60B' }, Node{ name: 'b', size: '20B' }]
 	}
-	tiles := layout(root, 0, 0, 100, 100)
+	tiles := layout(entries(root), 0, 0, 100, 100)
 	assert tiles.len == 3
 	mut area := f32(0)
 	for tile in tiles {
@@ -22,7 +22,44 @@ fn test_layout_preserves_area_and_remainder() {
 }
 
 fn test_empty_layout() {
-	assert layout(Node{}, 0, 0, 100, 100).len == 0
+	assert layout(entries(Node{}), 0, 0, 100, 100).len == 0
+	assert layout(entries(root_fixture()), 0, 0, 0, 100).len == 0
+}
+
+fn root_fixture() Node {
+	return Node{
+		name:     'root'
+		size:     '100B'
+		children: [Node{
+			name: 'a'
+			size: '60B'
+		}]
+	}
+}
+
+fn test_layout_follows_the_map_shape() {
+	// A wide rectangle splits along x; a tall one splits along y.
+	nodes := entries(Node{
+		name:     'root'
+		size:     '100B'
+		children: [Node{ name: 'a', size: '50B' }, Node{ name: 'b', size: '50B' }]
+	})
+	wide := layout(nodes, 0, 0, 400, 100)
+	tall := layout(nodes, 0, 0, 100, 400)
+	assert wide[0].w < wide[0].h * 4
+	assert wide[0].y == wide[1].y
+	assert tall[0].x == tall[1].x
+}
+
+fn test_entries_name_the_unexplained_space() {
+	nodes := entries(Node{
+		name:     '/root'
+		size:     '100B'
+		children: [Node{ name: '/root/a', size: '60B' }]
+	})
+	assert nodes.len == 2
+	assert os.file_name(nodes[1].name) == 'Other files in this folder'
+	assert bytes(nodes[1]) == 40
 }
 
 fn test_real_dust_handles_special_path() {
