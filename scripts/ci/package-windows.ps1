@@ -15,6 +15,6 @@ Get-ChildItem "$env:VCPKG_PREFIX/share" -Filter copyright -Recurse | ForEach-Obj
 $crt = Get-ChildItem "$env:VCToolsRedistDir/x64" -Directory -Filter '*.CRT' | Select-Object -First 1
 if (-not $crt) { throw 'MSVC runtime directory is missing' }
 Copy-Item "$($crt.FullName)/*.dll" $dest
-python scripts/ci/smoke.py "$dest/dust-atlas.exe"
+v run scripts/ci/smoke.vsh "$dest/dust-atlas.exe"
 if ($LASTEXITCODE -ne 0) { throw 'Packaged dust check failed' }
 Compress-Archive -Path $dest -DestinationPath dist/Dust-Atlas-windows-x64.zip -Force

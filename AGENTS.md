@@ -35,7 +35,7 @@ Keep generated `bin/` and `.direnv/` files out of commits.
 
 Use tabs and let `v fmt` control V formatting. Use `snake_case` for functions and variables; use `PascalCase` for types.
 
-Write repository scripts in V, as `.vsh` files. Python remains only for `scripts/ci/install-v.py`, because it installs V, and for the packaging helpers that still use it.
+Write repository scripts in V, as `.vsh` files. Only `scripts/ci/install-v.py` stays Python, because it installs V.
 
 Keep each module small and give it one responsibility. Export only the items that other modules use. Do not name a module `ui`: `v fmt` removes the `gui.` qualifier from types in a module with that name.
 

@@ -19,6 +19,6 @@ done
 codesign --force --sign - "$contents/MacOS/dust"
 codesign --force --sign - "$app"
 codesign --verify --deep --strict "$app"
-python3 scripts/ci/check-macos-libs.py "$contents"
-python3 scripts/ci/smoke.py "$contents/MacOS/dust-atlas"
+v run scripts/ci/check-macos-libs.vsh "$contents"
+v run scripts/ci/smoke.vsh "$contents/MacOS/dust-atlas"
 ditto -c -k --sequesterRsrc --keepParent "$app" "dist/Dust-Atlas-macos-$(uname -m).zip"

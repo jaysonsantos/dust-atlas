@@ -20,5 +20,7 @@ export OUTPUT=dist/Dust-Atlas-linux-x86_64.AppImage
 if ldd .ci/squashfs-root/usr/bin/dust-atlas | grep 'not found'; then
   exit 1
 fi
+# Build the check first. The bundled libraries below must not reach the compiler.
+v -o .ci/tools/smoke scripts/ci/smoke.vsh
 LD_LIBRARY_PATH="$PWD/.ci/squashfs-root/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-  xvfb-run -a python3 scripts/ci/smoke.py .ci/squashfs-root/usr/bin/dust-atlas
+  xvfb-run -a .ci/tools/smoke .ci/squashfs-root/usr/bin/dust-atlas

@@ -19,5 +19,5 @@ if write {
 	exit(0)
 }
 run('git diff --check')
-// The V toolchain cannot install itself. Check that the Python helpers still parse.
+// The V toolchain cannot install itself. Check that the Python installer still parses.
 run('python3 -m compileall -q ${os.quoted_path(os.join_path(@VMODROOT, 'scripts'))}')
