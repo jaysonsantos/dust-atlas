@@ -5,6 +5,8 @@ It is a V desktop frontend for [dust](https://github.com/bootandy/dust).
 Rectangles show the disk space for each entry in a folder.
 Click a folder rectangle or tree entry to see its contents.
 
+![Dust Atlas space map with a folder tree, a rectangle map of folder sizes, and a right-click menu with Move to Trash and Delete Permanently options](assets/screenshot.png)
+
 ## Start on macOS
 
 Install Nix with flakes enabled. On macOS, install the Xcode command line tools.
